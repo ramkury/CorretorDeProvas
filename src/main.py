@@ -11,8 +11,7 @@ def split_questions(original, lines):
     questions = []
     mid = cols // 2
     state = 0
-    for i in xrange(rows):
-        elem = lines[i, mid]
+    for i, elem in enumerate(lines[:, mid]):
         if state == 0:  # espaco entre questoes
             if elem > 0:
                 state = 1
@@ -37,16 +36,16 @@ def main():
     prova.append(cv2.imread('../img/p1_2.png', cv2.IMREAD_GRAYSCALE))
     prova.append(cv2.imread('../img/p1_3.png', cv2.IMREAD_GRAYSCALE))
     prova = np.concatenate(prova)
+    rows, cols = prova.shape
 
     # Imagem binarizada negativa
-    prova_linhas = cv2.threshold(prova, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-    rows, cols = prova.shape
+    prova_bin = cv2.threshold(prova, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
 
     # Isola linhas
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(0.95 * cols), 1)) * 255
-    prova_linhas = cv2.erode(prova_linhas, kernel)
+    prova_linhas = cv2.erode(prova_bin, kernel)
 
-    questoes = split_questions(prova, prova_linhas)
+    questoes = split_questions(prova_bin, prova_linhas)
     for n, q in enumerate(questoes):
         cv2.imwrite(('../res/q%d.png' % (1+n)), q)
 
