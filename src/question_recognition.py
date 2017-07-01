@@ -10,26 +10,30 @@ pi = 3.14159
 def split_questions(image, lines=None):
     rows, cols = image.shape
     if lines is None:
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(0.95 * cols), 1)) * 255
-        lines = cv2.erode(image, kernel)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(0.95 * cols), 1)) # * 255
+        lines = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
     questions = []
     mid = cols // 2
     state = 0
-    for i, elem in enumerate(lines[:, mid]):
+    midcol = lines[:, mid]
+    i = 0
+    while i < rows:
         if state == 0:  # espaco entre questoes
-            if elem > 0:
+            if midcol[i] > 0:
                 state = 1
         elif state == 1:  # linha de inicio da questao
-            if elem == 0:
+            if midcol[i] == 0:
+                i += 10
                 qstart = i
                 state = 2
         elif state == 2:  # conteudo da questao
-            if elem > 0:
-                questions.append(image[qstart:i - 1, :])
+            if midcol[i] > 0:
+                questions.append(image[qstart:i - 10, :])
                 state = 3
         elif state == 3:  # linha de final de questao
-            if elem == 0:
+            if midcol[i] == 0:
                 state = 0
+        i += 1
 
     return questions
 
@@ -50,17 +54,18 @@ class AnswerArea:
         self.xend = xend
         self.ystart = ystart
         self.yend = yend
-        self.img_flat = image.flatten
+        self.img_flat = image[ystart:yend, xstart:xend].flatten()
 
     def measure(self):
-        return 1.0 - (float(np.count_nonzero(self.img_flat)) / len(self.img_flat))
+        return float(np.count_nonzero(self.img_flat)) / len(self.img_flat)
 
     def evaluate(self, percentage):
         return self.measure() > percentage
 
     def draw(self, image, color):
-        cv2.rectangle(image, (self.xstart, self.ystart), (self.xend, self.yend), (rr(256), rr(256), rr(256)),
-                      thickness=2)
+        c = (rr(256), rr(256), rr(256))
+        cv2.rectangle(image, (self.xstart, self.ystart), (self.xend, self.yend), c, thickness=2)
+        print("BoxValue: %f" % self.measure())
 
 
 class QuestionImg:
