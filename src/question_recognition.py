@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from random import randrange as rr
 import operator
 
 
@@ -39,25 +40,27 @@ class Marker:
         self.stats = stats
 
     def draw(self, image, color):
-        cv2.circle(image, self.centroid, self.stats[cv2.CC_STAT_AREA/(2*pi)], color)
-
-    def x(self):
-        return self.centroid[0]
-
-    def y(self):
-        return self.centroid[1]
+        int_centroid = int(self.centroid[0]), int(self.centroid[1])
+        cv2.circle(image, int_centroid, int(self.stats[cv2.CC_STAT_AREA]/(2*pi)), color, thickness=3)
 
 
 class AnswerArea:
-    def __init__(self, img):
-        self.img = img
-        self.area = img.shape[0] * img.shape[1]
+    def __init__(self, xstart, xend, ystart, yend, image):
+        self.xstart = xstart
+        self.xend = xend
+        self.ystart = ystart
+        self.yend = yend
+        self.img_flat = image.flatten
 
     def measure(self):
-        return 1.0 - (float(np.count_nonzero(self.img[:, :])) / self.area)
+        return 1.0 - (float(np.count_nonzero(self.img_flat)) / len(self.img_flat))
 
     def evaluate(self, percentage):
         return self.measure() > percentage
+
+    def draw(self, image, color):
+        cv2.rectangle(image, (self.xstart, self.ystart), (self.xend, self.yend), (rr(256), rr(256), rr(256)),
+                      thickness=2)
 
 
 class QuestionImg:
@@ -66,10 +69,11 @@ class QuestionImg:
         self.markers = []
         self.find_markers()
         self.answer_blocks = []
+        self.find_answer_blocks()
 
     def find_markers(self):
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
-        eroded = cv2.erode(self.img_bin, kernel)
+        eroded = cv2.morphologyEx(self.img_bin, cv2.MORPH_ERODE, kernel)
         n_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(eroded, connectivity=8)
         all_markers = [Marker(c, stats[i]) for i, c in enumerate(centroids)]
 
@@ -93,12 +97,22 @@ class QuestionImg:
 
     def find_answer_blocks(self):
         self.markers.sort(key=lambda m: m.centroid[0])
-        half_height = self.markers[1].centroids[1] - self.markers[0].centroids[1]
-        y_center = (self.markers[0].centroids[1] + self.markers[-1].centroids[1]) // 2
-        ybegin, yend = y_center - half_height, y_center + half_height
+        half_height = (self.markers[1].centroid[1] - self.markers[0].centroid[1]) / 2.0
+        y_center = (self.markers[0].centroid[1] + self.markers[-1].centroid[1]) / 2.0
+        ybegin = int(y_center - half_height)
+        yend = int(y_center + half_height)
 
         for i in range(1, len(self.markers) - 1):
-            xcenter = self.markers[i][0]
-            xbegin = self.markers[i-1].centroid[0] + xcenter // 2
-            xend = self.markers[i+1].centroids[0] + xcenter // 2
-            self.answer_blocks.append(AnswerArea(self.img_bin[ybegin:yend, xbegin:xend]))
+            xcenter = self.markers[i].centroid[0]
+            xbegin = int((self.markers[i-1].centroid[0] + xcenter) // 2)
+            xend = int((self.markers[i+1].centroid[0] + xcenter) // 2)
+            self.answer_blocks.append(AnswerArea(xbegin, xend, ybegin, yend, self.img_bin))
+
+    def show(self):
+        img_bgr = cv2.cvtColor(self.img_bin, cv2.COLOR_GRAY2BGR)
+        for ab in self.answer_blocks:
+            ab.draw(img_bgr, (255, 0, 0))
+        for m in self.markers:
+            m.draw(img_bgr, (0, 255, 0))
+        cv2.imshow('areas', img_bgr)
+        cv2.waitKey(0)
