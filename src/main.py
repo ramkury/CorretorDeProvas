@@ -4,33 +4,12 @@ from func_correcao import *
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np
-
-
-def split_questions(original, lines):
-    rows, cols = original.shape
-    questions = []
-    mid = cols // 2
-    state = 0
-    for i, elem in enumerate(lines[:, mid]):
-        if state == 0:  # espaco entre questoes
-            if elem > 0:
-                state = 1
-        elif state == 1:  # linha de inicio da questao
-            if elem == 0:
-                qstart = i
-                state = 2
-        elif state == 2:  # conteudo da questao
-            if elem > 0:
-                questions.append(original[qstart:i-1, :])
-                state = 3
-        elif state == 3:  # linha de final de questao
-            if elem == 0:
-                state = 0
-
-    return questions
+from question_recognition import *
 
 
 def main():
+    marcador_questao = cv2.imread('../img/marcacao_resposta.png', cv2.IMREAD_GRAYSCALE)
+    marcador_questao = cv2.threshold(marcador_questao, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     prova = []
     prova.append(cv2.imread('../img/p1_1.png', cv2.IMREAD_GRAYSCALE))
     prova.append(cv2.imread('../img/p1_2.png', cv2.IMREAD_GRAYSCALE))
@@ -55,4 +34,11 @@ def main():
     # cv2.waitKey(0)
 
 if __name__ == '__main__':
-    main()
+    # main()
+    img_prova = cv2.imread('../img/teste-circulo.png', cv2.IMREAD_GRAYSCALE)
+    img_prova = cv2.threshold(img_prova, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    cv2.imshow('questao', img_prova)
+    cv2.waitKey(0)
+    qimgs = split_questions(img_prova)
+    questions = [QuestionImg(q) for q in qimgs]
+    print([m.centroid for m in questions[0].markers])
