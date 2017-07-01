@@ -19,19 +19,17 @@ class Questao:
                 return
 
         elif self.gabarito.tipo == 2:  # múltiplas marcações - Tipo C
-            for r in self.marcacoes:
-                if r in self.gabarito.resp:
-                    self.nota += self.gabarito.valor
-        return
+            self.nota = self.gabarito.valor
+            item = self.gabarito.valor/self.gabarito.num_item
+            for i in xrange(0, self.gabarito.num_item):
+                if bool(i in self.marcacoes) ^ bool(i in self.gabarito.resp):
+                    self.nota -= item
 
 
 class Gabarito:
-    def __init__(self, valor_questao, tipo_questao, respostas):
-        if tipo_questao == 1:  # marcação única - Tipo C
-            self.valor = valor_questao
-        elif tipo_questao == 2:  # múltiplas marcações - Tipo C
-            self.valor = valor_questao / len(respostas)
-
+    def __init__(self, valor_questao, tipo_questao, respostas, num_item):
+        self.valor = valor_questao
+        self.num_item = num_item
         self.resp = respostas
         self.tipo = tipo_questao
 
@@ -48,4 +46,3 @@ class Prova:
         for r in self.respostas:
             r.avalia()
             self.nota += r.nota
-        return

@@ -24,16 +24,18 @@ def cria_gabarito():
             letra = raw_input("Forneça a letra referente a resposta correta: ")
             letra = letra.lower()
             resp.append(ord(letra)-ord('a'))
+            num_item = 1
         elif a == 2:
             letras = raw_input("Forneça todas as letras que devem ser marcadas separadas apenas por espaços: ")
             letras = letras.lower()
             op = letras.split()
             for r in op:
                 resp.append(ord(r)-ord('a'))
+            num_item = int(raw_input("Forneça o número total de opções da questão:"))
 
         val = float(raw_input("Forneça o valor total da questão: "))
 
-        gabarito.append(Gabarito(val, a, resp))
+        gabarito.append(Gabarito(val, a, resp, num_item))
         i += 1
         a = int(raw_input("Forneça o tipo da questão %d: (ou 0 (zero) caso a questão não exista) " % i))
 
@@ -64,11 +66,10 @@ def read_all(fileName): #  eh um problema se o arquivo for maior que a memoria d
 def salva_gabarito_txt(full_path, gabarito):
     text = ""
     for r in gabarito:
-        text_questao = "%d %f" %(r.tipo, r.valor)
+        text_questao = "%d %f %d" %(r.tipo, r.valor, r.num_item)
         for y in r.resp:
             text_questao = text_questao + " %d" %(y)
         text += text_questao + "\n"
-
     write_from_zero(full_path, text)
 
 
@@ -80,10 +81,11 @@ def le_gabarito_txt(full_path):
         elementos = r.split()
         tipo = int(elementos[0])
         val = float(elementos[1])
+        num_item = int(elementos[2])
         resp = []
-        for i in xrange(2, len(elementos)):
+        for i in xrange(3, len(elementos)):
             resp.append(int(elementos[i]))
-        gabarito.append(Gabarito(val, tipo, resp))
+        gabarito.append(Gabarito(val, tipo, resp, num_item))
     return gabarito
 
 # if __name__ == '__main__':
