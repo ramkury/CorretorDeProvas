@@ -1,3 +1,6 @@
+# This Python file uses the following encoding: utf-8
+
+from func_correcao import *
 import cv2
 from matplotlib import pyplot as plt
 import numpy as np

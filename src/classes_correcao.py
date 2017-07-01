@@ -2,9 +2,8 @@
 
 
 class Questao:
-
-    def __init__(self, lstMarcacoes, gabarito):
-        self.marcacoes = lstMarcacoes
+    def __init__(self, lst_marcacoes, gabarito):
+        self.marcacoes = lst_marcacoes
         self.nota = 0
         self.gabarito = gabarito
 
@@ -27,46 +26,26 @@ class Questao:
 
 
 class Gabarito:
-
-    def __init__(self, valorQuestao, tipoQuestao, respostas):
-        if tipoQuestao == 1:  # marcação única - Tipo C
-            self.valor = valorQuestao
-        elif tipoQuestao == 2:  # múltiplas marcações - Tipo C
-            self.valor = valorQuestao / len(respostas)
+    def __init__(self, valor_questao, tipo_questao, respostas):
+        if tipo_questao == 1:  # marcação única - Tipo C
+            self.valor = valor_questao
+        elif tipo_questao == 2:  # múltiplas marcações - Tipo C
+            self.valor = valor_questao / len(respostas)
 
         self.resp = respostas
-        self.tipo = tipoQuestao
+        self.tipo = tipo_questao
 
 
 class Prova:
-
-    def __init__(self, gabaritos, lstMarcacoes):
+    def __init__(self, gabaritos, lst_marcacoes):
         self.nota = 0
         self.respostas = []
         for i, r in enumerate(gabaritos):
-            self.respostas.append(Questao(lstMarcacoes[i], r))
+            self.respostas.append(Questao(lst_marcacoes[i], r))
 
     def avalia(self):
         self.nota = 0
         for r in self.respostas:
             r.avalia()
             self.nota += r.nota
-
-
-def main():
-    print("Bem-vindo ao Gerenciador de Gabarito!")
-    print("Trabalhamos com 2 tipos de questões:")
-    print("1 - Questões tipo C com uma única alternativa")
-    print("2 - Questões tipo C com múltiplas alternativas")
-    i = 1
-    a = int(raw_input("Forneça o tipo da questão %d: (ou 0 (zero) caso a questão não exista)" %i))
-    gabarito = []
-
-    while(a != 0):
-        if(a == 1):
-            a
-
-
-
-if __name__ == '__main__':
-    main()
+        return
