@@ -49,6 +49,8 @@ class Marker:
 
 
 class AnswerArea:
+    checked_threshold = 0.5
+
     def __init__(self, xstart, xend, ystart, yend, image):
         self.xstart = xstart
         self.xend = xend
@@ -59,8 +61,8 @@ class AnswerArea:
     def measure(self):
         return float(np.count_nonzero(self.img_flat)) / len(self.img_flat)
 
-    def evaluate(self, percentage):
-        return self.measure() > percentage
+    def is_checked(self):
+        return self.measure() >= self.checked_threshold
 
     def draw(self, image, color):
         c = (rr(256), rr(256), rr(256))
@@ -121,3 +123,6 @@ class QuestionImg:
             m.draw(img_bgr, (0, 255, 0))
         cv2.imshow('areas', img_bgr)
         cv2.waitKey(0)
+
+    def evaluate(self):
+        return [i for i, a in enumerate(self.answer_blocks) if a.is_checked()]

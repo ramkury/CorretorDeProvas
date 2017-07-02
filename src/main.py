@@ -14,5 +14,5 @@ if __name__ == '__main__':
     cv2.waitKey(0)
     qimgs = split_questions(img_prova)
     questions = [QuestionImg(q) for q in qimgs]
-    for q in questions:
-        q.show()
+    answers = [q.evaluate() for q in questions]
+    print(answers)
