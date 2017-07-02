@@ -4,9 +4,10 @@ from classes_correcao import *
     
 def cria_gabarito():
     print("Bem-vindo ao Gerenciador de Gabarito!")
-    print("Trabalhamos com 2 tipos de questões:")
+    print("Trabalhamos com 3 tipos de questões:")
     print("1 - Questões tipo C com uma única alternativa")
-    print("2 - Questões tipo C com múltiplas alternativas \n")
+    print("2 - Questões tipo C com múltiplas alternativas")
+    print("3 - Questões tipo A\n")
     i = 1
     a = int(raw_input("Forneça o tipo da questão %d: (ou 0 (zero) caso a questão não exista) " %i))
     gabarito = []
@@ -14,10 +15,11 @@ def cria_gabarito():
     while a != 0:
         resp = []
 
-        while (a!=1) and (a!=2):
-            print("Trabalhamos com 2 tipos de questões:")
+        while (a!=1) and (a!=2) and (a!=3):
+            print("Trabalhamos com 3 tipos de questões:")
             print("1 - Questões tipo C com uma única alternativa")
-            print("2 - Questões tipo C com múltiplas alternativas \n")
+            print("2 - Questões tipo C com múltiplas alternativas")
+            print("3 - Questões tipo A\n")
             a = int(raw_input("Forneça o tipo da questão %d: (ou 0 (zero) caso a questão não exista) " % i))
 
         if a == 1:
@@ -32,6 +34,17 @@ def cria_gabarito():
             for r in op:
                 resp.append(ord(r)-ord('a'))
             num_item = int(raw_input("Forneça o número total de opções da questão:"))
+        elif a == 3:
+            letras = raw_input("Forneça as respostas do item (V ou F) na ordem em que eles aparecem, separados"
+                               " apenas por espaço: ")
+            letras = letras.lower()
+            op = letras.split()
+            num_item = len(op) * 2
+            for j, r in enumerate(op):
+                if r == 'v':
+                    resp.append(2*j)
+                elif r == 'f':
+                    resp.append(2*j + 1)
 
         val = float(raw_input("Forneça o valor total da questão: "))
 
