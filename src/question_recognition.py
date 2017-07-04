@@ -54,6 +54,8 @@ class AnswerArea:
     checked_threshold = 0.11
     margin_h = 6
     margin_v = 3
+    color_unchecked = (139, 227, 24)  # verde
+    color_checked = (66, 106, 255)  # coral
 
     def __init__(self, xstart, xend, ystart, yend, image):
         self.xstart = xstart + self.margin_h
@@ -69,8 +71,8 @@ class AnswerArea:
     def is_checked(self):
         return self.measure() >= self.checked_threshold
 
-    def draw(self, image, color):
-        c = (rr(256), rr(256), rr(256))
+    def draw(self, image):
+        c = self.color_checked if self.is_checked() else self.color_unchecked
         cv2.rectangle(image, (self.xstart, self.ystart), (self.xend, self.yend), c, thickness=2)
         print("BoxValue: %f" % self.measure())
 
@@ -132,11 +134,11 @@ class QuestionImg:
         cv2.waitKey(0)
 
     def marked_image(self):
-        img_bgr = cv2.cvtColor(self.img_bin, cv2.COLOR_GRAY2BGR)
+        img_bgr = cv2.cvtColor(self.img_gray, cv2.COLOR_GRAY2BGR)
         for ab in self.answer_blocks:
-            ab.draw(img_bgr, (255, 0, 0))
+            ab.draw(img_bgr)
         for m in self.markers:
-            m.draw(img_bgr, (0, 255, 0))
+            m.draw(img_bgr, (222, 204, 32))
         return img_bgr
 
     def evaluate(self):
