@@ -63,18 +63,15 @@ class AnswerArea:
         self.ystart = ystart + self.margin_v
         self.yend = yend - self.margin_v
         self.img_flat = image[self.ystart:self.yend, self.xstart:self.xend].flatten()
+        self.checked = self.measure() >= self.checked_threshold
 
     def measure(self):
-        # return float(np.count_nonzero(self.img_flat)) / len(self.img_flat)
         return 1.0 - (np.sum(self.img_flat) / (len(self.img_flat) * 255.0))
 
-    def is_checked(self):
-        return self.measure() >= self.checked_threshold
-
     def draw(self, image):
-        c = self.color_checked if self.is_checked() else self.color_unchecked
+        c = self.color_checked if self.checked else self.color_unchecked
         cv2.rectangle(image, (self.xstart, self.ystart), (self.xend, self.yend), c, thickness=2)
-        print("BoxValue: %f" % self.measure())
+        # print("BoxValue: %f" % self.measure())
 
 
 class QuestionImg:
@@ -142,4 +139,4 @@ class QuestionImg:
         return img_bgr
 
     def evaluate(self):
-        return [i for i, a in enumerate(self.answer_blocks) if a.is_checked()]
+        return [i for i, a in enumerate(self.answer_blocks) if a.checked]

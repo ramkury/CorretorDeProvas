@@ -20,7 +20,7 @@ class Questao:
 
         elif self.gabarito.tipo == 2:  # múltiplas marcações - Tipo C
             self.nota = self.gabarito.valor
-            item = self.gabarito.valor/self.gabarito.num_item
+            item = self.gabarito.valor/len(self.gabarito.resp)
             for i in xrange(0, self.gabarito.num_item):
                 if bool(i in self.marcacoes) ^ bool(i in self.gabarito.resp):
                     self.nota -= item
